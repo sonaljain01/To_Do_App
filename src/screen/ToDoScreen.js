@@ -1,7 +1,8 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
+import { saveTodoList, loadTodoList } from '../utils/storage';
 // test by adding dummy data
 // const dummyData = [
 //     { id: "01", title: "Wash car" },
@@ -15,6 +16,19 @@ const ToDoScreen = () => {
     const [editedTodo, setEditedTodo] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [highlightedId, setHighlightedId] = useState(null);
+
+    useEffect(() => {
+        const fetchTodoList = async () => {
+            const loadedTodoList = await loadTodoList();
+            setTodoList(loadedTodoList);
+        };
+        fetchTodoList();
+    }, []);
+
+    useEffect(() => {
+        // Save the todo list to AsyncStorage whenever it changes
+        saveTodoList(todoList);
+    }, [todoList]);
 
     //Handle Add Todo
     const handleAddTodo = () => {
