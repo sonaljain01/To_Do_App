@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList, Alert } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
@@ -19,11 +19,24 @@ const ToDoScreen = () => {
     const [editedTodo, setEditedTodo] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [highlightedId, setHighlightedId] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const fetchTodoList = async () => {
-            const loadedTodoList = await loadTodoList();
-            setTodoList(loadedTodoList);
+            setLoading(true);
+            setError(null);
+            try {
+                const loadedTodoList = await loadTodoList();
+                setTodoList(loadedTodoList);
+            }
+            catch (e){
+                setError("Failed to load Todos");
+            }
+            finally{
+                setLoading(false);
+            }
         };
         fetchTodoList();
     }, []);
@@ -91,6 +104,20 @@ const ToDoScreen = () => {
         } else {
             Alert.alert("Task Not Found", "No task matches your search.");
             setHighlightedId(null); // clear the highlight if not found
+        }
+        setLoading(false);
+    };
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        setError(null);
+        try {
+            const refreshedTodoList = await loadTodoList();
+            setTodoList(refreshedTodoList);
+        } catch (e) {
+            setError('Failed to refresh todos');
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -166,11 +193,17 @@ const ToDoScreen = () => {
                 </TouchableOpacity>
             </View>
 
+            {loading && <ActivityIndicator size="large" color="#0000ff" />}
+            {error && <Text style={styles.errorText}>{error}</Text>}
+            {refreshing && <ActivityIndicator size="large" color="#00ff00" />}
+
             {/* Render To Do List */}
             <FlatList
                 data={todoList}
                 renderItem={renderTodos}
                 keyExtractor={(item) => item.id}
+                onRefresh={handleRefresh}
+                refreshing={refreshing}
             />
 
             {
@@ -275,4 +308,10 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+    errorText: {
+        color: 'red',
+        marginVertical: 10,
+        textAlign: 'center',
+    },
 });
+
