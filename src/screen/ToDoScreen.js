@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
 import { saveTodoList, loadTodoList } from '../utils/storage';
+import { exportToPdf, exportToTxt } from '../utils/exportUtils';
+
+
 // test by adding dummy data
 // const dummyData = [
 //     { id: "01", title: "Wash car" },
@@ -100,12 +103,21 @@ const ToDoScreen = () => {
         }
         return (
             <View style={[styles.itemContainer, isHighlighted && styles.highlightedItem]}>
-            {/* <View style={styles.itemContainer}> */}
+                {/* <View style={styles.itemContainer}> */}
                 <Text style={styles.itemText}>{item.title}</Text>
                 <IconButton icon="pencil" iconColor='black' onPress={() => handleEditTodo(item)} />
                 <IconButton icon="delete" iconColor='black' onPress={() => handleDeleteTodo(item.id)} />
             </View>
         );
+    };
+
+    const handleExportTxt = async () => {
+        try {
+            await exportToTxt(todoList);
+        } catch (error) {
+            console.error('Failed to export to txt', error);
+            Alert.alert('Export failed', 'An error occurred while exporting the file.');
+        }
     };
 
     return (
@@ -142,6 +154,15 @@ const ToDoScreen = () => {
                 />
                 <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch()}>
                     <Text style={styles.searchButtonText}>Search</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.exportContainer}>
+                <TouchableOpacity style={styles.exportButton} onPress={() => exportToTxt(todoList)}>
+                    <Text style={styles.exportButtonText}>Export to .txt</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.exportButton} onPress={() => exportToPdf(todoList)}>
+                    <Text style={styles.exportButtonText}>Export to .pdf</Text>
                 </TouchableOpacity>
             </View>
 
@@ -239,5 +260,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flex: 1,
     },
-
+    exportContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 24,
+    },
+    exportButton: {
+        backgroundColor: '#0e86d4',
+        borderRadius: 6,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+    },
+    exportButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
 });
