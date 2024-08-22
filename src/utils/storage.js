@@ -22,3 +22,14 @@ export const loadTodoList = async () => {
         return [];
     }
 };
+
+export const handleLogin = async () => {
+    try {
+      const { token } = await login(email, password);
+      await AsyncStorage.setItem('userToken', token); // Save token
+      Alert.alert('Login successful');
+      navigation.navigate('ToDoList');
+    } catch (error) {
+      Alert.alert('Login failed', error.response?.data?.error || 'An error occurred');
+    }
+  };

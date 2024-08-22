@@ -5,7 +5,6 @@ import Fallback from '../components/Fallback';
 import { saveTodoList, loadTodoList } from '../utils/storage';
 import { exportToPdf, exportToTxt } from '../utils/exportUtils';
 
-
 // test by adding dummy data
 // const dummyData = [
 //     { id: "01", title: "Wash car" },
@@ -23,6 +22,8 @@ const ToDoScreen = () => {
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
 
+
+
     useEffect(() => {
         const fetchTodoList = async () => {
             setLoading(true);
@@ -31,10 +32,10 @@ const ToDoScreen = () => {
                 const loadedTodoList = await loadTodoList();
                 setTodoList(loadedTodoList);
             }
-            catch (e){
+            catch (e) {
                 setError("Failed to load Todos");
             }
-            finally{
+            finally {
                 setLoading(false);
             }
         };
